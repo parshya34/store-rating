@@ -10,24 +10,17 @@ import { Users, Store, Star, LogOut, Plus, Search } from 'lucide-react';
 export const AdminDashboard = ({ user, onLogout }) => {
   const [searchTerm, setSearchTerm] = useState('');
   
-  // Mock data
+  // Dynamic data - starts empty
+  const [stores, setStores] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [totalRatings, setTotalRatings] = useState(0);
+
+  // Calculate stats dynamically
   const stats = {
-    totalUsers: 156,
-    totalStores: 43,
-    totalRatings: 892
+    totalUsers: users.length,
+    totalStores: stores.length,
+    totalRatings: totalRatings
   };
-
-  const stores = [
-    { id: 1, name: 'Downtown Coffee Shop', email: 'coffee@downtown.com', address: '123 Main St, Downtown', rating: 4.5 },
-    { id: 2, name: 'Tech Gadgets Store', email: 'info@techgadgets.com', address: '456 Tech Ave, Silicon Valley', rating: 4.2 },
-    { id: 3, name: 'Fashion Boutique', email: 'hello@fashionboutique.com', address: '789 Style St, Fashion District', rating: 4.8 },
-  ];
-
-  const users = [
-    { id: 1, name: 'John Doe Smith Anderson', email: 'john@example.com', address: '123 User St', role: 'user' },
-    { id: 2, name: 'Jane Admin Super User', email: 'jane@admin.com', address: '456 Admin Ave', role: 'admin' },
-    { id: 3, name: 'Store Owner Business Manager', email: 'owner@store.com', address: '789 Business Blvd', role: 'store_owner' },
-  ];
 
   const StarRating = ({ rating }) => {
     return (
@@ -44,6 +37,21 @@ export const AdminDashboard = ({ user, onLogout }) => {
       </div>
     );
   };
+
+  // Filter stores based on search term
+  const filteredStores = stores.filter(store =>
+    store.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    store.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    store.address.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Filter users based on search term
+  const filteredUsers = users.filter(user =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.role.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -73,7 +81,7 @@ export const AdminDashboard = ({ user, onLogout }) => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalUsers}</div>
-              <p className="text-xs text-muted-foreground">+12% from last month</p>
+              <p className="text-xs text-muted-foreground">Users registered</p>
             </CardContent>
           </Card>
 
@@ -84,7 +92,7 @@ export const AdminDashboard = ({ user, onLogout }) => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalStores}</div>
-              <p className="text-xs text-muted-foreground">+5% from last month</p>
+              <p className="text-xs text-muted-foreground">Stores registered</p>
             </CardContent>
           </Card>
 
@@ -95,7 +103,7 @@ export const AdminDashboard = ({ user, onLogout }) => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalRatings}</div>
-              <p className="text-xs text-muted-foreground">+23% from last month</p>
+              <p className="text-xs text-muted-foreground">Ratings submitted</p>
             </CardContent>
           </Card>
         </div>
@@ -134,23 +142,38 @@ export const AdminDashboard = ({ user, onLogout }) => {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {stores.map((store) => (
-                    <div key={store.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                      <div className="flex justify-between items-start">
-                        <div className="space-y-2">
-                          <h3 className="font-semibold text-lg">{store.name}</h3>
-                          <p className="text-sm text-gray-600">{store.email}</p>
-                          <p className="text-sm text-gray-600">{store.address}</p>
-                          <StarRating rating={store.rating} />
+                {filteredStores.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Store className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600 mb-4">
+                      {searchTerm ? 'No stores found matching your search.' : 'No stores registered yet.'}
+                    </p>
+                    {!searchTerm && (
+                      <Button className="gap-2">
+                        <Plus className="h-4 w-4" />
+                        Add First Store
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {filteredStores.map((store) => (
+                      <div key={store.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                        <div className="flex justify-between items-start">
+                          <div className="space-y-2">
+                            <h3 className="font-semibold text-lg">{store.name}</h3>
+                            <p className="text-sm text-gray-600">{store.email}</p>
+                            <p className="text-sm text-gray-600">{store.address}</p>
+                            <StarRating rating={store.rating || 0} />
+                          </div>
+                          <Button variant="outline" size="sm">
+                            View Details
+                          </Button>
                         </div>
-                        <Button variant="outline" size="sm">
-                          View Details
-                        </Button>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -177,27 +200,39 @@ export const AdminDashboard = ({ user, onLogout }) => {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {users.map((user) => (
-                    <div key={user.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                      <div className="flex justify-between items-start">
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-lg">{user.name}</h3>
-                            <Badge variant={user.role === 'admin' ? 'destructive' : user.role === 'store_owner' ? 'secondary' : 'default'}>
-                              {user.role.replace('_', ' ').toUpperCase()}
-                            </Badge>
+                {filteredUsers.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600 mb-4">
+                      {searchTerm ? 'No users found matching your search.' : 'No users registered yet.'}
+                    </p>
+                    {!searchTerm && (
+                      <p className="text-sm text-gray-500">Users will appear here when they sign up or are added by administrators.</p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {filteredUsers.map((user) => (
+                      <div key={user.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                        <div className="flex justify-between items-start">
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-semibold text-lg">{user.name}</h3>
+                              <Badge variant={user.role === 'admin' ? 'destructive' : user.role === 'store_owner' ? 'secondary' : 'default'}>
+                                {user.role.replace('_', ' ').toUpperCase()}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-gray-600">{user.email}</p>
+                            <p className="text-sm text-gray-600">{user.address}</p>
                           </div>
-                          <p className="text-sm text-gray-600">{user.email}</p>
-                          <p className="text-sm text-gray-600">{user.address}</p>
+                          <Button variant="outline" size="sm">
+                            View Details
+                          </Button>
                         </div>
-                        <Button variant="outline" size="sm">
-                          View Details
-                        </Button>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
