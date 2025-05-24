@@ -10,12 +10,14 @@ export const LoginForm = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Mock users for demonstration
-  const mockUsers = [
-    { id: 1, email: 'admin@storerate.com', password: 'Admin123!', role: 'admin', name: 'System Admin' },
-    { id: 2, email: 'user@example.com', password: 'User123!', role: 'user', name: 'John Doe' },
-    { id: 3, email: 'store@example.com', password: 'Store123!', role: 'store_owner', name: 'Store Owner' },
-  ];
+  // Default admin account only
+  const defaultAdmin = { 
+    id: 1, 
+    email: 'admin@storerate.com', 
+    password: 'Admin123!', 
+    role: 'admin', 
+    name: 'System Admin' 
+  };
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -52,9 +54,22 @@ export const LoginForm = ({ onLogin }) => {
       return;
     }
 
-    // Mock authentication
+    // Authentication
     setTimeout(() => {
-      const user = mockUsers.find(u => u.email === email && u.password === password);
+      // Check admin account
+      if (email === defaultAdmin.email && password === defaultAdmin.password) {
+        toast({
+          title: "Login Successful",
+          description: `Welcome back, ${defaultAdmin.name}!`,
+        });
+        onLogin(defaultAdmin);
+        setIsLoading(false);
+        return;
+      }
+
+      // Check registered users
+      const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+      const user = registeredUsers.find(u => u.email === email && u.password === password);
       
       if (user) {
         toast({
@@ -104,10 +119,9 @@ export const LoginForm = ({ onLogin }) => {
       </Button>
 
       <div className="text-sm text-gray-600 mt-4">
-        <p className="font-medium">Demo Accounts:</p>
-        <p>Admin: admin@storerate.com / Admin123!</p>
-        <p>User: user@example.com / User123!</p>
-        <p>Store: store@example.com / Store123!</p>
+        <p className="font-medium">Demo Admin Account:</p>
+        <p>Email: admin@storerate.com</p>
+        <p>Password: Admin123!</p>
       </div>
     </form>
   );

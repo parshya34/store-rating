@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { SignupForm } from '@/components/auth/SignupForm';
 import { AdminDashboard } from '@/components/dashboards/AdminDashboard';
@@ -20,6 +19,10 @@ const Index = () => {
 
   const handleLogout = () => {
     setCurrentUser(null);
+    setShowSignup(false);
+  };
+
+  const handleSignupSuccess = () => {
     setShowSignup(false);
   };
 
@@ -99,7 +102,7 @@ const Index = () => {
             </CardHeader>
             <CardContent>
               {showSignup ? (
-                <SignupForm onSignup={handleLogin} />
+                <SignupForm onSignupSuccess={handleSignupSuccess} />
               ) : (
                 <LoginForm onLogin={handleLogin} />
               )}

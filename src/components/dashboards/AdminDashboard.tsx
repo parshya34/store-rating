@@ -1,19 +1,41 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Users, Store, Star, LogOut, Plus, Search } from 'lucide-react';
+import { AddStoreForm } from '@/components/forms/AddStoreForm';
 
 export const AdminDashboard = ({ user, onLogout }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  
-  // Dynamic data - starts empty
   const [stores, setStores] = useState([]);
   const [users, setUsers] = useState([]);
   const [totalRatings, setTotalRatings] = useState(0);
+  const [isAddStoreOpen, setIsAddStoreOpen] = useState(false);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = () => {
+    // Load stores from localStorage
+    const savedStores = JSON.parse(localStorage.getItem('stores') || '[]');
+    setStores(savedStores);
+
+    // Load users from localStorage
+    const savedUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+    setUsers(savedUsers);
+
+    // Load ratings from localStorage
+    const savedRatings = JSON.parse(localStorage.getItem('ratings') || '[]');
+    setTotalRatings(savedRatings.length);
+  };
+
+  const handleStoreAdded = () => {
+    loadData();
+  };
 
   // Calculate stats dynamically
   const stats = {
@@ -124,10 +146,26 @@ export const AdminDashboard = ({ user, onLogout }) => {
                     <CardTitle>Store Management</CardTitle>
                     <CardDescription>View and manage all registered stores</CardDescription>
                   </div>
-                  <Button className="gap-2">
-                    <Plus className="h-4 w-4" />
-                    Add Store
-                  </Button>
+                  <Dialog open={isAddStoreOpen} onOpenChange={setIsAddStoreOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="gap-2">
+                        <Plus className="h-4 w-4" />
+                        Add Store
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>Add New Store</DialogTitle>
+                        <DialogDescription>
+                          Create a new store and store owner account on the platform.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <AddStoreForm 
+                        onClose={() => setIsAddStoreOpen(false)}
+                        onStoreAdded={handleStoreAdded}
+                      />
+                    </DialogContent>
+                  </Dialog>
                 </div>
                 <div className="flex gap-2">
                   <div className="relative flex-1">
@@ -149,10 +187,26 @@ export const AdminDashboard = ({ user, onLogout }) => {
                       {searchTerm ? 'No stores found matching your search.' : 'No stores registered yet.'}
                     </p>
                     {!searchTerm && (
-                      <Button className="gap-2">
-                        <Plus className="h-4 w-4" />
-                        Add First Store
-                      </Button>
+                      <Dialog open={isAddStoreOpen} onOpenChange={setIsAddStoreOpen}>
+                        <DialogTrigger asChild>
+                          <Button className="gap-2">
+                            <Plus className="h-4 w-4" />
+                            Add First Store
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>Add New Store</DialogTitle>
+                            <DialogDescription>
+                              Create a new store and store owner account on the platform.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <AddStoreForm 
+                            onClose={() => setIsAddStoreOpen(false)}
+                            onStoreAdded={handleStoreAdded}
+                          />
+                        </DialogContent>
+                      </Dialog>
                     )}
                   </div>
                 ) : (
@@ -164,7 +218,7 @@ export const AdminDashboard = ({ user, onLogout }) => {
                             <h3 className="font-semibold text-lg">{store.name}</h3>
                             <p className="text-sm text-gray-600">{store.email}</p>
                             <p className="text-sm text-gray-600">{store.address}</p>
-                            <StarRating rating={store.rating || 0} />
+                            <StarRating rating={store.overallRating || 0} />
                           </div>
                           <Button variant="outline" size="sm">
                             View Details
@@ -178,6 +232,7 @@ export const AdminDashboard = ({ user, onLogout }) => {
             </Card>
           </TabsContent>
 
+          
           <TabsContent value="users" className="space-y-4">
             <Card>
               <CardHeader>
