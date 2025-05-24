@@ -1,11 +1,10 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Star, LogOut, Search, MapPin } from 'lucide-react';
+import { Star, LogOut, Search, MapPin, Store } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 export const UserDashboard = ({ user, onLogout }) => {
